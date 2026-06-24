@@ -2,38 +2,13 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import Product from "../models/Product";
 
-// Load environment variables from .env before anything else.
-// Without this line, process.env.MONGO_URI would be undefined.
+
 dotenv.config();
 
-// ------------------------------------------------------------------
-// SEED SCRIPT
-// ------------------------------------------------------------------
-// This script fills the database with ~200,000 fake products.
-// Run it once before starting the server:
-//   npm run seed
-//
-// It connects directly to MongoDB, inserts the data, then exits.
-// It does NOT start the Express server.
-// ------------------------------------------------------------------
 
 const TOTAL_PRODUCTS = 200000;
 
-// We split products into batches of 1000 before inserting.
-// ------------------------------------------------------------------
-// WHY BATCHING IS BETTER THAN ONE AT A TIME
-// ------------------------------------------------------------------
-// If we loop and call Product.create() 200,000 times:
-//   - Each call opens a network round-trip to MongoDB
-//   - 200,000 network round-trips = very slow (could take 10+ minutes)
-//   - Node.js also has to keep 200,000 promises in memory at once
-//
-// With insertMany() in batches of 1000:
-//   - We send 1000 documents per network request
-//   - Only 200 round-trips instead of 200,000
-//   - Memory stays low because we only hold 1000 objects at a time
-//   - Typical speed improvement: 10x to 50x faster
-// ------------------------------------------------------------------
+
 const BATCH_SIZE = 1000;
 
 // These are the categories our fake products will belong to.
@@ -92,7 +67,9 @@ async function seed() {
   // We loop through the total count in steps of BATCH_SIZE.
   // Each iteration, we build a batch array and insert it all at once.
   for (let i = 0; i < TOTAL_PRODUCTS; i += BATCH_SIZE) {
+
     // Build an array of BATCH_SIZE product objects in memory
+
     const batch = [];
     for (let j = i; j < i + BATCH_SIZE && j < TOTAL_PRODUCTS; j++) {
       batch.push(buildFakeProduct(j));
@@ -101,6 +78,7 @@ async function seed() {
     // insertMany() sends all 1000 documents to MongoDB in a single request.
     // { ordered: false } means: if one document fails validation,
     // MongoDB still inserts the rest instead of stopping immediately.
+    
     await Product.insertMany(batch, { ordered: false });
 
     insertedCount += batch.length;

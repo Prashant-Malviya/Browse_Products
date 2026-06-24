@@ -171,14 +171,10 @@ export async function updateProduct(req: Request, res: Response) {
       updateData.price = price;
     }
 
-    const product = await Product.findByIdAndUpdate(
-      req.params.id,
-      updateData,
-      {
-        new: true,
-        runValidators: true,
-      }
-    ).lean();
+    const product = await Product.findByIdAndUpdate(req.params.id, updateData, {
+      new: true,
+      runValidators: true,
+    }).lean();
 
     if (!product) {
       return res.status(404).json({
@@ -203,27 +199,26 @@ export async function updateProduct(req: Request, res: Response) {
 
 export async function deleteProduct(req: Request, res: Response) {
   try {
-
-    console.log(req.params.id)
+    console.log(req.params.id);
     const product = await Product.findByIdAndDelete(req.params.id).lean();
 
     if (!product) {
       return res.status(404).json({
         success: false,
-        message: "Product not found"
+        message: "Product not found",
       });
     }
 
     res.status(200).json({
       success: true,
-      message: "Product deleted"
+      message: "Product deleted",
     });
   } catch (error) {
     console.error("Error deleting product:", error);
 
     res.status(500).json({
       success: false,
-      message: "Internal server error"
+      message: "Internal server error",
     });
   }
 }
@@ -255,11 +250,7 @@ export async function seedProducts(req: Request, res: Response) {
     for (let i = 0; i < SEED_TOTAL_PRODUCTS; i += SEED_BATCH_SIZE) {
       const batch: Array<Record<string, unknown>> = [];
 
-      for (
-        let j = i;
-        j < i + SEED_BATCH_SIZE && j < SEED_TOTAL_PRODUCTS;
-        j++
-      ) {
+      for (let j = i; j < i + SEED_BATCH_SIZE && j < SEED_TOTAL_PRODUCTS; j++) {
         batch.push(buildFakeProduct(j));
       }
 

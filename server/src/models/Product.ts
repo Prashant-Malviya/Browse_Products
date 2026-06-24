@@ -4,7 +4,7 @@ const productSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: true, 
+      required: true,
     },
     category: {
       type: String,
@@ -17,7 +17,7 @@ const productSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 productSchema.index({ category: 1, createdAt: -1, _id: -1 });
 productSchema.index({ createdAt: -1, _id: -1 });
