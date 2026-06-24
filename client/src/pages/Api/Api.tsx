@@ -57,6 +57,99 @@ export function Api() {
           )}
         />
 
+         <APIExplorer
+  method="POST"
+  path="/api/products"
+  purpose="Creates a new product and stores it in the database."
+  requestExample={JSON.stringify(
+    {
+      name: "Wireless Mouse",
+      category: "Electronics",
+      price: 24.99,
+    },
+    null,
+    2,
+  )}
+  responseExample={JSON.stringify(
+    {
+      success: true,
+      data: {
+        _id: "665f1a2b9c1d4e0012345678",
+        name: "Wireless Mouse",
+        category: "Electronics",
+        price: 24.99,
+        createdAt: "2026-05-02T10:15:00.000Z",
+        updatedAt: "2026-05-02T10:15:00.000Z",
+      },
+    },
+    null,
+    2,
+  )}
+  notDocumented
+/>
+
+<APIExplorer
+  method="PUT"
+  path="/api/products/:id"
+  purpose="Updates an existing product. Supports partial updates of name, category, or price."
+  parameters={[
+    {
+      name: "id",
+      type: "string",
+      required: true,
+      description: "MongoDB ObjectId of the product to update.",
+    },
+  ]}
+  requestExample={JSON.stringify(
+    {
+      name: "Gaming Mouse",
+      price: 39.99,
+    },
+    null,
+    2,
+  )}
+  responseExample={JSON.stringify(
+    {
+      success: true,
+      data: {
+        _id: "665f1a2b9c1d4e0012345678",
+        name: "Gaming Mouse",
+        category: "Electronics",
+        price: 39.99,
+        createdAt: "2026-05-02T10:15:00.000Z",
+        updatedAt: "2026-05-02T11:20:00.000Z",
+      },
+    },
+    null,
+    2,
+  )}
+  notDocumented
+/>
+
+<APIExplorer
+  method="DELETE"
+  path="/api/products/:id"
+  purpose="Deletes a product by its MongoDB ObjectId."
+  parameters={[
+    {
+      name: "id",
+      type: "string",
+      required: true,
+      description: "MongoDB ObjectId of the product to delete.",
+    },
+  ]}
+  requestExample={'DELETE /api/products/665f1a2b9c1d4e0012345678'}
+  responseExample={JSON.stringify(
+    {
+      success: true,
+      message: "Product deleted",
+    },
+    null,
+    2,
+  )}
+  notDocumented
+/>
+
         <APIExplorer
           method="GET"
           path="/api/products/stats"

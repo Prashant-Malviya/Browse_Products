@@ -8,11 +8,12 @@ interface UseProductsArgs {
   category: Category | null
   /** Client-side filter — the backend doesn't expose a search endpoint (see API page note). */
   search: string
+  refreshKey?: number
 }
 
-export function useProducts({ category, search }: UseProductsArgs) {
+export function useProducts({ category, search, refreshKey }: UseProductsArgs) {
   const pagination = useCursorPagination<Product>({
-    resetKey: category ?? 'all',
+    resetKey: `${category ?? 'all'}:${refreshKey ?? 0}`,
     fetchPage: (cursor) => getProducts({ limit: DEFAULT_PAGE_LIMIT, category, cursor }),
   })
 

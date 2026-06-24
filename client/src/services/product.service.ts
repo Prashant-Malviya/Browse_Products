@@ -1,11 +1,22 @@
 import { apiClient } from './api'
 import { ENDPOINTS } from '@/constants'
-import type { Category, ProductListResponse, SeedResponse, StatsResponse } from '@/types'
+import type { Category, Product, ProductListResponse, SeedResponse, StatsResponse } from '@/types'
 
 export interface GetProductsParams {
   limit?: number
   category?: Category | null
   cursor?: string | null
+}
+
+export interface CreateProductPayload {
+  name: string
+  category: Category
+  price: number
+}
+
+export interface CreateProductResponse {
+  success: boolean
+  data: Product
 }
 
 export async function getProducts({ limit, category, cursor }: GetProductsParams): Promise<ProductListResponse> {
@@ -26,6 +37,11 @@ export async function getProducts({ limit, category, cursor }: GetProductsParams
  */
 export async function getProductStats(): Promise<StatsResponse> {
   const { data } = await apiClient.get<StatsResponse>(ENDPOINTS.productStats)
+  return data
+}
+
+export async function createProduct(product: CreateProductPayload): Promise<CreateProductResponse> {
+  const { data } = await apiClient.post<CreateProductResponse>(ENDPOINTS.products, product)
   return data
 }
 

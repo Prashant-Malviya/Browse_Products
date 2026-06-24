@@ -14,7 +14,7 @@ export interface ApiParameter {
 }
 
 interface APIExplorerProps {
-  method: 'GET' | 'POST'
+  method: 'GET' | 'POST' | 'PUT' | 'DELETE'
   path: string
   purpose: string
   parameters?: ApiParameter[]
@@ -26,7 +26,12 @@ interface APIExplorerProps {
 
 const methodStyles: Record<string, string> = {
   GET: 'bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-300',
+
   POST: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300',
+
+  PUT: 'bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-300',
+
+  DELETE: 'bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-300',
 }
 
 export function APIExplorer({

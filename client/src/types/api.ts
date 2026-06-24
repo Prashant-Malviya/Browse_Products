@@ -12,6 +12,11 @@ export interface ProductListResponse {
   pagination: Pagination
 }
 
+export interface CreateProductResponse {
+  success: boolean
+  data: Product
+}
+
 export interface ApiErrorBody {
   success: false
   message: string

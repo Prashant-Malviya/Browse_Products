@@ -23,6 +23,7 @@ app.use(
   })
 );
 app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
 app.use("/api/products", productRoutes);
 app.post("/api/seed", seedProducts);
