@@ -1,6 +1,6 @@
 # Product Browser — Frontend
 
-A React + TypeScript + Vite frontend for the cursor-paginated Product Browser backend (Node.js, Express, MongoDB).
+A React + TypeScript + Vite frontend for the cursor-paginated Product Browser backend.
 
 ## Stack
 
@@ -10,56 +10,54 @@ React 19 · TypeScript · Vite · React Router · Axios · Tailwind CSS v4 · Fr
 
 ```bash
 npm install
-cp .env.example .env   # set VITE_API_BASE_URL to your running backend
+cp .env.example .env
+# set VITE_API_BASE_URL to your running backend, e.g. http://localhost:8080
 npm run dev
 ```
 
-| Script             | Purpose                                |
-| ------------------ | --------------------------------------- |
-| `npm run dev`       | Start the dev server with HMR           |
-| `npm run build`     | Type-check, then build to `dist/`       |
-| `npm run preview`   | Preview the production build locally    |
-| `npm run lint`      | Run ESLint                              |
-| `npm run format`    | Format `src/` with Prettier             |
+## Scripts
 
-## Important: backend contract gap
+| Script | Purpose |
+| --- | --- |
+| `npm run dev` | Start the dev server with HMR |
+| `npm run build` | Type-check and build the production bundle |
+| `npm run preview` | Preview the production build locally |
+| `npm run lint` | Run ESLint |
+| `npm run format` | Format source files with Prettier |
 
-The backend README documents exactly one route: **`GET /api/products`**. This frontend's brief also called for a
-"Generate Dataset" flow on the Home page, which needs a product-count endpoint and a way to trigger seeding —
-so this app additionally calls:
+## API usage
 
-- `GET /api/products/stats` — total product count
-- `POST /api/seed` — triggers the batched seed script
+The frontend consumes these backend endpoints:
 
-**Neither of those two is in the documented backend contract.** They're implemented here so the intended UI flow
-exists end-to-end, but until those routes are added server-side, the Home page's stats card and "Generate" button
-will surface a clear error toast instead of failing silently. This gap is also called out directly on the **API
-page** inside the app, and in `src/constants/api.ts`.
+- `GET /api/products`
+- `GET /api/products/stats`
+- `POST /api/seed`
+
+The `Products` page uses cursor pagination via `useCursorPagination`.
+The `Home` page uses `/api/products/stats` to display dataset size and `/api/seed` to generate products.
 
 ## Project structure
 
 ```text
 src/
-  components/   Reusable UI pieces (one folder per component)
+  components/   Reusable UI components
   pages/        Route-level views: Home, Products, Api, About, Contact
-  hooks/        useCursorPagination, useProducts, useDebounce, useDarkMode, useDatasetStats
-  services/     Axios instance + product API calls
-  types/        Product, pagination, and API response types
-  constants/    Categories, endpoints, pagination/seed config
-  utils/        Formatting, classnames, clipboard helpers
-  routes/       Lazy-loaded route table
+  hooks/        Data fetching and pagination hooks
+  services/     Axios client and product API calls
+  types/        Product, category, and API response types
+  constants/    API endpoints, categories, and pagination settings
+  utils/        Formatting, clipboard, and helper utilities
+  routes/       Lazy-loaded route definitions
 ```
 
-## Cursor pagination, from the frontend's side
+## Behavior notes
 
-`useCursorPagination` caches every page it has fetched in memory, keyed by index. **Next** asks the backend for
-one more page using the previous page's `nextCursor`; **Previous** simply moves the pointer back to an
-already-cached page, with no extra request. Changing the category filter resets pagination to page one via a
-`resetKey`. There's no search endpoint on the backend yet, so the search box filters only the products already
-loaded on the current page — clearly labeled in the UI rather than implied as full-dataset search.
+- Category filtering is server-backed and resets pagination.
+- Search is client-side only and filters products already loaded on the current page.
+- Previously fetched pages are cached in memory so navigating back does not re-request them.
 
 ## Environment variables
 
-| Variable              | Default                  | Purpose                  |
-| ---------------------- | ------------------------- | ------------------------- |
-| `VITE_API_BASE_URL`     | `http://localhost:5000`   | Base URL of the backend   |
+| Variable | Example | Purpose |
+| --- | --- | --- |
+| `VITE_API_BASE_URL` | `http://localhost:8080` | Backend base URL |

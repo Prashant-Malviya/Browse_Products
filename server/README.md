@@ -18,14 +18,15 @@ npm install
 ### 2. Configure environment
 ```bash
 cp .env.example .env
-# Edit .env and set your MONGO_URI
+# Edit .env and set your MONGO_URI and CLIENT_URI
 ```
 
 ### 3. Seed the database
 ```bash
 npm run seed
 ```
-This inserts 200,000 fake products. Takes about 30–60 seconds.
+
+This inserts ~200,000 products in batches and keeps memory usage low.
 
 ### 4. Start the development server
 ```bash
@@ -40,56 +41,41 @@ Returns a paginated list of products.
 
 **Query Parameters:**
 
-| Parameter | Type   | Default | Description                          |
-|-----------|--------|---------|--------------------------------------|
-| limit     | number | 20      | Products per page (max 100)          |
-| category  | string | -       | Filter by category name              |
-| cursor    | string | -       | Cursor from previous page response   |
+| Parameter | Type   | Default | Description |
+| --- | --- | --- | --- |
+| `limit` | number | 20 | Products per page (max 100) |
+| `category` | string | - | Filter by category name |
+| `cursor` | string | - | Cursor from previous page response |
 
-**Example Requests:**
-```
-# First page, all products
-GET /api/products
+### GET /api/products/stats
 
-# First page, electronics only
-GET /api/products?category=Electronics
+Returns a count of products in the collection.
 
-# Next page (paste the nextCursor value from previous response)
-GET /api/products?cursor=eyJjcmVhdGVkQXQiOi...
+### POST /api/seed
 
-# 50 products per page
-GET /api/products?limit=50
+Inserts the seed dataset into MongoDB using batched `insertMany` calls.
 
-# Combined
-GET /api/products?category=Books&limit=10
-```
+### GET /health
 
-**Response:**
-```json
-{
-  "success": true,
-  "data": [
-    {
-      "_id": "...",
-      "name": "Electronics Product 1",
-      "category": "Electronics",
-      "price": 299.99,
-      "createdAt": "2024-01-15T10:30:00.000Z",
-      "updatedAt": "2024-01-15T10:30:00.000Z"
-    }
-  ],
-  "pagination": {
-    "nextCursor": "eyJjcmVhdGVkQXQiOi...",
-    "hasMore": true,
-    "limit": 20
-  }
-}
+Basic health check endpoint.
+
+## Example requests
+
+```bash
+curl "http://localhost:8080/api/products?limit=20&category=Electronics"
 ```
 
-To get the next page, pass `nextCursor` as the `cursor` parameter.
-When `hasMore` is `false`, you have reached the last page.
+```bash
+curl "http://localhost:8080/api/products/stats"
+```
 
-## Available Categories
+```bash
+curl -X POST "http://localhost:8080/api/seed"
+```
+
+## Product categories
+
+The backend seeds these categories:
 
 - Electronics
 - Clothing
@@ -102,8 +88,10 @@ When `hasMore` is `false`, you have reached the last page.
 - Food & Grocery
 - Office Supplies
 
-## Health Check
+## Environment variables
 
-```
-GET /health
-```
+| Variable | Example | Purpose |
+| --- | --- | --- |
+| `PORT` | `8080` | Server port |
+| `MONGO_URI` | `mongodb://localhost:27017/products-browser` | MongoDB connection URI |
+| `CLIENT_URI` | `http://localhost:5173` | Allowed frontend origin for CORS |
