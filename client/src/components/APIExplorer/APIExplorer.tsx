@@ -1,10 +1,10 @@
 import { motion } from 'framer-motion'
-import { FiAlertTriangle, FiLink } from 'react-icons/fi'
 import { CodeBlock } from '@/components/CodeBlock'
 import { copyToClipboard } from '@/utils'
 import { API_BASE_URL } from '@/constants'
 import { useState } from 'react'
 import toast from 'react-hot-toast'
+import { FiLink } from 'react-icons/fi'
 
 export interface ApiParameter {
   name: string
@@ -41,7 +41,6 @@ export function APIExplorer({
   parameters,
   requestExample,
   responseExample,
-  notDocumented,
 }: APIExplorerProps) {
   const [, setCopied] = useState(false)
 
