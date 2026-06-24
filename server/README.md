@@ -1,97 +1,333 @@
 # Product Browsing Backend
 
-A backend API for browsing ~200,000 products with cursor-based pagination.
+Backend API for browsing approximately 200,000 products using efficient cursor-based pagination.
+
+Built as part of the CodeVector Backend Assignment to demonstrate scalable pagination, filtering, and handling large datasets.
+
+---
 
 ## Tech Stack
 
-- Node.js + Express.js
-- TypeScript
-- MongoDB + Mongoose
+* Node.js
+* Express.js
+* TypeScript
+* MongoDB
+* Mongoose
+
+---
+
+## Features
+
+* Cursor-based pagination
+* Category filtering
+* Product CRUD operations
+* Batched dataset generation (200,000 products)
+* MongoDB indexing
+* CORS support
+* Health check endpoint
+* Protection against accidental reseeding
+
+---
 
 ## Setup
 
-### 1. Install dependencies
+### Install Dependencies
+
 ```bash
 npm install
 ```
 
-### 2. Configure environment
-```bash
-cp .env.example .env
-# Edit .env and set your MONGO_URI and CLIENT_URI
+### Configure Environment Variables
+
+Create a `.env` file:
+
+```env
+PORT=8080
+MONGO_URI=mongodb://localhost:27017/products-browser
+CLIENT_URI=http://localhost:5173
 ```
 
-### 3. Seed the database
+### Seed Database
+
 ```bash
 npm run seed
 ```
 
-This inserts ~200,000 products in batches and keeps memory usage low.
+Generates approximately 200,000 products using batched `insertMany()` operations.
 
-### 4. Start the development server
+### Start Development Server
+
 ```bash
 npm run dev
 ```
 
-## API
-
-### GET /api/products
-
-Returns a paginated list of products.
-
-**Query Parameters:**
-
-| Parameter | Type   | Default | Description |
-| --- | --- | --- | --- |
-| `limit` | number | 20 | Products per page (max 100) |
-| `category` | string | - | Filter by category name |
-| `cursor` | string | - | Cursor from previous page response |
-
-### GET /api/products/stats
-
-Returns a count of products in the collection.
-
-### POST /api/seed
-
-Inserts the seed dataset into MongoDB using batched `insertMany` calls.
-
-### GET /health
-
-Basic health check endpoint.
-
-## Example requests
+### Build Project
 
 ```bash
-curl "http://localhost:8080/api/products?limit=20&category=Electronics"
+npm run build
 ```
+
+### Start Production Build
 
 ```bash
-curl "http://localhost:8080/api/products/stats"
+npm start
 ```
 
-```bash
-curl -X POST "http://localhost:8080/api/seed"
+---
+
+## API Endpoints
+
+### Get Products
+
+```http
+GET /api/products
 ```
 
-## Product categories
+Returns products ordered by:
 
-The backend seeds these categories:
+```ts
+createdAt DESC
+_id DESC
+```
 
-- Electronics
-- Clothing
-- Books
-- Home & Garden
-- Sports
-- Toys
-- Automotive
-- Health & Beauty
-- Food & Grocery
-- Office Supplies
+#### Query Parameters
 
-## Environment variables
+| Parameter | Type   | Default | Description                            |
+| --------- | ------ | ------- | -------------------------------------- |
+| limit     | number | 20      | Products per page (max 100)            |
+| category  | string | -       | Filter products by category            |
+| cursor    | string | -       | Cursor returned from previous response |
 
-| Variable | Example | Purpose |
-| --- | --- | --- |
-| `PORT` | `8080` | Server port |
-| `MONGO_URI` | `mongodb://localhost:27017/products-browser` | MongoDB connection URI |
-| `CLIENT_URI` | `http://localhost:5173` | Allowed frontend origin for CORS |
+#### Example
+
+```http
+GET /api/products?limit=20&category=Electronics
+```
+
+#### Response
+
+```json
+{
+  "success": true,
+  "data": [],
+  "pagination": {
+    "nextCursor": "eyJ...",
+    "hasMore": true,
+    "limit": 20
+  }
+}
+```
+
+---
+
+### Create Product
+
+```http
+POST /api/products
+```
+
+#### Request Body
+
+```json
+{
+  "name": "Wireless Mouse",
+  "category": "Electronics",
+  "price": 24.99
+}
+```
+
+---
+
+### Update Product
+
+```http
+PUT /api/products/:id
+```
+
+#### Request Body
+
+```json
+{
+  "name": "Gaming Mouse",
+  "price": 39.99
+}
+```
+
+---
+
+### Delete Product
+
+```http
+DELETE /api/products/:id
+```
+
+Deletes the specified product.
+
+---
+
+### Product Statistics
+
+```http
+GET /api/products/stats
+```
+
+#### Response
+
+```json
+{
+  "success": true,
+  "data": {
+    "totalProducts": 200000
+  }
+}
+```
+
+---
+
+### Seed Dataset
+
+```http
+POST /api/seed
+```
+
+Populates the database using batched inserts.
+
+If products already exist, the endpoint returns:
+
+```json
+{
+  "success": false,
+  "message": "Database already seeded"
+}
+```
+
+to prevent accidental duplicate dataset creation.
+
+---
+
+### Health Check
+
+```http
+GET /health
+```
+
+#### Response
+
+```json
+{
+  "status": "ok"
+}
+```
+
+---
+
+## Product Schema
+
+```ts
+{
+  _id: ObjectId,
+  name: string,
+  category: string,
+  price: number,
+  createdAt: Date,
+  updatedAt: Date
+}
+```
+
+---
+
+## Seeded Categories
+
+* Electronics
+* Clothing
+* Books
+* Home & Garden
+* Sports
+* Toys
+* Automotive
+* Health & Beauty
+* Food & Grocery
+* Office Supplies
+
+---
+
+## Pagination Design
+
+Products are sorted using:
+
+```ts
+{
+  createdAt: -1,
+  _id: -1
+}
+```
+
+Cursor payload:
+
+```ts
+{
+  createdAt,
+  id
+}
+```
+
+The cursor is encoded as Base64 and returned as:
+
+```json
+{
+  "pagination": {
+    "nextCursor": "eyJ..."
+  }
+}
+```
+
+Subsequent requests provide this cursor:
+
+```http
+GET /api/products?cursor=eyJ...
+```
+
+This avoids the performance problems of:
+
+```ts
+skip(page * limit)
+```
+
+and keeps pagination performance consistent even with large datasets.
+
+---
+
+## MongoDB Indexes
+
+The API is optimized using indexes on pagination fields.
+
+Recommended index:
+
+```ts
+{
+  category: 1,
+  createdAt: -1,
+  _id: -1
+}
+```
+
+This allows MongoDB to efficiently support filtering and cursor-based pagination.
+
+---
+
+## Improvements With More Time
+
+* JWT authentication
+* Role-based access control
+* Rate limiting
+* Redis caching
+* Automated testing
+* Docker support
+* Swagger/OpenAPI documentation
+* Snapshot pagination for update consistency
+
+---
+
+## Author
+
+Prashant Malviya
