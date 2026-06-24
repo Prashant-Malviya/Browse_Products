@@ -1,4 +1,14 @@
-export type Category = 'Electronics' | 'Fashion' | 'Home' | 'Sports' | 'Books' | 'Toys'
+export type Category =
+  | 'Electronics'
+  | 'Clothing'
+  | 'Books'
+  | 'Home & Garden'
+  | 'Sports'
+  | 'Toys'
+  | 'Automotive'
+  | 'Health & Beauty'
+  | 'Food & Grocery'
+  | 'Office Supplies'
 
 export interface Product {
   _id: string

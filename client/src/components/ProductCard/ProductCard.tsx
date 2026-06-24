@@ -10,7 +10,7 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product }: ProductCardProps) {
-  const meta = CATEGORY_META[product.category]
+  const meta = CATEGORY_META[product.category] ?? { icon: '📦', accent: 'indigo' }
   const isEmerald = meta.accent === 'emerald'
 
   async function handleCopyId() {
