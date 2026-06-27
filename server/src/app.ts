@@ -11,17 +11,7 @@ dotenv.config({ path: envPath });
 const app = express();
 const allowedOrigin = process.env.CLIENT_URI?.trim();
 
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin || origin === allowedOrigin) {
-        callback(null, true);
-      } else {
-        callback(new Error(`Origin ${origin} not allowed by CORS`));
-      }
-    },
-  })
-);
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
